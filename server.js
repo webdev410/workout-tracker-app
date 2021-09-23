@@ -13,13 +13,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workoutdb", { useNewUrlParser: true });
+
+
 app.get("/exercise", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/exercise.html"));
 });
 app.get("/stats", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/stats.html"));
 });
-
 
 app.post("/api/workouts", ({ body }, res) => {
     console.log(body)
@@ -58,7 +60,15 @@ app.get("/api/workouts", (req, res) => {
         }
     });
 });
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workoutdb", { useNewUrlParser: true });
+app.get("/api/workouts/range", (req, res) => {
+    db.Workout.find({}, (err, found) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(found);
+        }
+    });
+});
 
 
 app.listen(PORT, () =>
