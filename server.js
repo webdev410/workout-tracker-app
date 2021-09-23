@@ -20,6 +20,7 @@ app.get("/stats", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/stats.html"));
 });
 
+
 app.post("/api/workouts", ({ body }, res) => {
     console.log(body)
     db.Workout.create(body)
@@ -48,8 +49,15 @@ app.put("/api/workouts/:id", function (req, res) {
     );
 });
 
-
-
+app.get("/api/workouts", (req, res) => {
+    db.Workout.find({}, (err, found) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(found);
+        }
+    });
+});
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workoutdb", { useNewUrlParser: true });
 
 
