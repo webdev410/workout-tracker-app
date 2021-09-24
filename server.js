@@ -60,22 +60,40 @@ app.put("/api/workouts/:id", function (req, res) {
 });
 
 app.get("/api/workouts", (req, res) => {
-    db.Workout.find({}, (err, found) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.json(found);
+    db.Workout.aggregate([
+        {
+            $addFields: {
+                totalDuration: { $sum: "$exercises.duration" },
+
+            },
         }
-    });
+
+    ])
+        .then(dbWorkouts => {
+            res.json(dbWorkouts);
+        })
+        .catch(err => {
+            res.json(err);
+        });
 });
-app.get("/api/workouts/range", (req, res) => {
-    db.Workout.find({}, (err, found) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.json(found);
-        }
-    });
+app.get("/api/workouts/range", function (req, res) {
+
+    db.Workout.aggregate([
+        {
+            $addFields: {
+                totalDuration: { $sum: "$exercises.duration" },
+                dateDifference: {
+                    $subtract: [new Date(), "$day"],
+                },
+            }
+        },
+    ],
+
+    )
+        .then(function (dbWorkouts) {
+            // console.log(dbWorkouts)
+            res.json(dbWorkouts);
+        });
 });
 
 
